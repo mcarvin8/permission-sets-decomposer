@@ -1,0 +1,11 @@
+# List files or directories below to ignore them when running force:source:push, force:source:pull, and force:source:status
+# More information: https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_exclude_source.htm
+#
+
+package.xml
+
+# Ignore all XML files in the perm set directory
+**/permissionsets/*.xml
+
+# Allow all perm set meta files
+!**/permissionsets/*.permissionset-meta.xml
