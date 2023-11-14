@@ -40,6 +40,7 @@ def extract_full_name(element, namespace):
 
 
 def create_single_element_xml_file(tag_name, value, perm_directory, parent_perm_name):
+    """Create a new XML file for a single element."""
     output_filename = f'{perm_directory}/{parent_perm_name}.{tag_name}.xml'
     # Create an ElementTree with a root element
     root = ET.Element(tag_name)
@@ -56,8 +57,8 @@ def create_single_element_xml_file(tag_name, value, perm_directory, parent_perm_
 
 
 
-def create_xml_file(label, perm_directory, parent_perm_name, tag, full_name):
-    """Create a new XML file for a given element."""
+def create_sub_element_xml_file(label, perm_directory, parent_perm_name, tag, full_name):
+    """Create a new XML file for a element with sub-elements."""
     output_filename = f'{perm_directory}/{parent_perm_name}.{tag}_{full_name}.xml'
 
     # Remove the namespace prefix from the element tags
@@ -97,7 +98,7 @@ def process_perm_file(perm_directory, filename):
         for _, label in enumerate(root.findall(f'sforce:{tag}', ns)):
             full_name = extract_full_name(label, ns)
             if full_name:
-                create_xml_file(label, perm_directory, parent_perm_name, tag, full_name)
+                create_sub_element_xml_file(label, perm_directory, parent_perm_name, tag, full_name)
             else:
                 logging.info(f"Skipping {tag} element without fullName")
 
