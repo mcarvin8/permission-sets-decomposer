@@ -3,6 +3,7 @@ import logging
 import os
 import xml.etree.ElementTree as ET
 
+import parse_package
 
 logging.basicConfig(format='%(message)s', level=logging.DEBUG)
 # tags which have children objects
@@ -21,22 +22,30 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description='A script to create permission sets.')
     parser.add_argument('-o', '--output', default='force-app/main/default/permissionsets')
+    parser.add_argument('-m', '--manifest', default=False, action='store_true')
+    parser.add_argument('-p', '--package', default='manifest/package.xml')
     args = parser.parse_args()
     return args
 
 
-def read_individual_xmls(perm_directory):
+def read_individual_xmls(perm_directory, manifest, package_path):
     """
         Read each XML file
     """
     individual_xmls = {}
+    if manifest:
+        package_sets = parse_package.read_package_xml(package_path)
+    else:
+        package_sets = None
+
     for filename in os.listdir(perm_directory):
         if filename.endswith('.xml') and not filename.endswith('.permissionset-meta.xml'):
             parent_perm_name = filename.split('.')[0]
-            individual_xmls.setdefault(parent_perm_name, [])
-            tree = ET.parse(os.path.join(perm_directory, filename))
-            root = tree.getroot()
-            individual_xmls[parent_perm_name].append(root)
+            if not manifest or (manifest and parent_perm_name in package_sets):
+                individual_xmls.setdefault(parent_perm_name, [])
+                tree = ET.parse(os.path.join(perm_directory, filename))
+                root = tree.getroot()
+                individual_xmls[parent_perm_name].append(root)
 
     return individual_xmls
 
@@ -86,24 +95,24 @@ def format_and_write_xmls(merged_xmls, perm_directory):
             file.write(formatted_xml.encode('utf-8'))
 
 
-def combine_perms(perm_directory):
+def combine_perms(perm_directory, manifest, package_path):
     """
         Combine the perm sets for deployments
     """
-    individual_xmls = read_individual_xmls(perm_directory)
+    individual_xmls = read_individual_xmls(perm_directory, manifest, package_path)
     merged_xmls = merge_xml_content(individual_xmls)
     format_and_write_xmls(merged_xmls, perm_directory)
 
     logging.info('The permission sets have been compiled for deployments.')
 
 
-def main(output_directory):
+def main(output_directory, manifest, package_path):
     """
         Main function
     """
-    combine_perms(output_directory)
+    combine_perms(output_directory, manifest, package_path)
 
 
 if __name__ == '__main__':
     inputs = parse_args()
-    main(inputs.output)
+    main(inputs.output, inputs.manifest, inputs.package)

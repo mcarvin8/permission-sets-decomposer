@@ -1,5 +1,8 @@
+import logging
+import sys
 import xml.etree.ElementTree as ET
 
+logging.basicConfig(format='%(message)s', level=logging.DEBUG)
 PERM_TYPE = ['PermissionSet']
 ns = {'sforce': 'http://soap.sforce.com/2006/04/metadata'}
 
@@ -17,4 +20,7 @@ def read_package_xml(package_path):
             metadata_members = metadata_type.findall('sforce:members', ns)
             for member in metadata_members:
                 permission_sets.append(member.text)
+    if permission_sets is None:
+        logging.info('ERROR: Permission sets were not found in the package.')
+        sys.exit(1)
     return permission_sets
