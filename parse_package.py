@@ -20,7 +20,8 @@ def read_package_xml(package_path):
             metadata_members = metadata_type.findall('sforce:members', ns)
             for member in metadata_members:
                 permission_sets.append(member.text)
-    if permission_sets is None:
-        logging.info('ERROR: Permission sets were not found in the package.')
-        sys.exit(1)
+    if not permission_sets:
+        logging.info('Permission sets were not found in the package.')
+        logging.info('Skipping permission set compilation.')
+        sys.exit(0)
     return permission_sets
