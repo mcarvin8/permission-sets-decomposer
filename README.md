@@ -7,4 +7,4 @@ Run the combine script to re-combine permission sets for deployments.
 
 Use the provided `.gitignore` and `.forceignore` to have Git ignore the original meta files and have the Salesforce CLI ignore the separated XML files.
 
-The package parsing script can be used if you deploy with a manifest file (package.xml) and want to only compile permission sets declared in the manifest.
+The package parsing script can be used if you deploy with a manifest file (package.xml) and want to only compile permission sets declared in the manifest. To use the package parsing script, supply the `--manifest` Boolean and the `--package` argument with the path to the package.xml. By default, `--manifest` will be set to False and all permission sets in the directory will be compiled.
