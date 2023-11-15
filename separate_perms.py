@@ -72,7 +72,7 @@ def create_sub_element_xml_file(label, perm_directory, parent_perm_name, tag, fu
     # Create a new XML file for each element
     with open(output_filename, 'wb') as file:
         # Add the XML header to the file
-        file.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
+        file.write(b'<?xml version="1.0" encoding="UTF-8"?>\n    ')
         element_tree.write(file, encoding='utf-8')
 
     logging.info(f"Saved {tag} element content to {output_filename}")

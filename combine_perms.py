@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
 import parse_package
 
@@ -84,15 +85,20 @@ def format_and_write_xmls(merged_xmls, perm_directory):
     """
         Create the final XMLs
     """
-    xml_header = '<?xml version="1.0" encoding="UTF-8"?>\n'
     for parent_perm_name, parent_perm_root in merged_xmls.items():
         parent_xml_str = ET.tostring(parent_perm_root, encoding='utf-8').decode('utf-8')
-        formatted_xml = parent_xml_str.replace('><', '>\n    <')
+        formatted_xml = minidom.parseString(parent_xml_str).toprettyxml(indent="    ")
+
+        # Remove extra new lines
+        formatted_xml = '\n'.join(line for line in formatted_xml.split('\n') if line.strip())
+
+        # Remove existing XML declaration
+        formatted_xml = '\n'.join(line for line in formatted_xml.split('\n') if not line.strip().startswith('<?xml'))
 
         parent_perm_filename = os.path.join(perm_directory, f'{parent_perm_name}.permissionset-meta.xml')
         with open(parent_perm_filename, 'wb') as file:
-            file.write(xml_header.encode('utf-8'))
-            file.write(formatted_xml.encode('utf-8'))
+            # Include encoding information in the XML header
+            file.write(f'<?xml version="1.0" encoding="UTF-8"?>\n{formatted_xml}'.encode('utf-8'))
 
 
 def combine_perms(perm_directory, manifest, package_path):
