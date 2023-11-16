@@ -14,7 +14,7 @@ XML_TAGS = ['applicationVisibilities', 'classAccesses', 'customMetadataTypeAcces
             'tabSettings', 'userPermissions', 'customPermissions',
             'flowAccesses']
 # tags which do not have children - text or boolean
-SINGLE_TAGS = ['description', 'has_activation_required', 'label', 'license']
+SINGLE_TAGS = ['description', 'has_activation_required', 'label', 'license', 'userLicense']
 
 
 def parse_args():
