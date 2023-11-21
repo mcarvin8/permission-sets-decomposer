@@ -21,18 +21,6 @@ def parse_args():
     return args
 
 
-def extract_full_name(element, namespace):
-    """Extract the full name from a given XML element."""
-
-
-    full_name_element = None
-    for name_tag in NAME_TAGS:
-        full_name_element = element.find(f'sforce:{name_tag}', namespace)
-        if full_name_element is not None:
-            return full_name_element.text
-    return None
-
-
 def create_single_element_xml_file(tag_name, value, perm_directory, parent_perm_name):
     """Create a new XML file for a single element."""
     output_filename = f'{perm_directory}/{parent_perm_name}.{tag_name}.xml'
