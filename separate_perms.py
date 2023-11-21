@@ -6,14 +6,9 @@ import os
 ns = {'sforce': 'http://soap.sforce.com/2006/04/metadata'}
 logging.basicConfig(format='%(message)s', level=logging.DEBUG)
 
-# tags which have children objects
-XML_TAGS = ['applicationVisibilities', 'classAccesses', 'customMetadataTypeAccesses',
-            'customSettingAccesses', 'externalDataSourceAccesses', 'fieldPermissions',
-            'objectPermissions', 'pageAccesses', 'recordTypeVisibilities',
-            'tabSettings', 'userPermissions', 'customPermissions',
-            'flowAccesses']
-# tags which do not have children - text or boolean
-SINGLE_TAGS = ['description', 'has_activation_required', 'label', 'license', 'userLicense']
+# elements used to name the permission
+NAME_TAGS = ['application', 'apexClass', 'name', 'externalDataSource', 'flow',
+            'object', 'apexPage', 'recordType', 'tab', 'field']
 
 
 def parse_args():
@@ -28,11 +23,10 @@ def parse_args():
 
 def extract_full_name(element, namespace):
     """Extract the full name from a given XML element."""
-    name_tags = ['application', 'apexClass', 'name', 'externalDataSource', 'flow',
-                'object', 'apexPage', 'recordType', 'tab', 'field']
+
 
     full_name_element = None
-    for name_tag in name_tags:
+    for name_tag in NAME_TAGS:
         full_name_element = element.find(f'sforce:{name_tag}', namespace)
         if full_name_element is not None:
             return full_name_element.text
@@ -56,7 +50,6 @@ def create_single_element_xml_file(tag_name, value, perm_directory, parent_perm_
         tree.write(file)
 
 
-
 def create_sub_element_xml_file(label, perm_directory, parent_perm_name, tag, full_name):
     """Create a new XML file for a element with sub-elements."""
     output_filename = f'{perm_directory}/{parent_perm_name}.{tag}_{full_name}.xml'
@@ -75,7 +68,7 @@ def create_sub_element_xml_file(label, perm_directory, parent_perm_name, tag, fu
         file.write(b'<?xml version="1.0" encoding="UTF-8"?>\n    ')
         element_tree.write(file, encoding='utf-8')
 
-    logging.info(f"Saved {tag} element content to {output_filename}")
+    logging.info('Saved %s element content to %s', tag, output_filename)
 
 
 def process_perm_file(perm_directory, filename):
@@ -88,19 +81,15 @@ def process_perm_file(perm_directory, filename):
     root = tree.getroot()
 
     # Extract values for invididual elements
-    for tag in SINGLE_TAGS:
-        full_name_element = root.find(f'sforce:{tag}', ns)
-        if full_name_element is not None:
-            create_single_element_xml_file(tag, full_name_element.text, perm_directory, parent_perm_name)
-
-    # Iterate through the specified XML tags
-    for tag in XML_TAGS:
-        for _, label in enumerate(root.findall(f'sforce:{tag}', ns)):
-            full_name = extract_full_name(label, ns)
-            if full_name:
-                create_sub_element_xml_file(label, perm_directory, parent_perm_name, tag, full_name)
-            else:
-                logging.info(f"Skipping {tag} element without fullName")
+    for element in root.findall('sforce:*', ns):
+        if not element.text.isspace():
+            create_single_element_xml_file(element.tag.split('}')[1], element.text, perm_directory, parent_perm_name)
+        else:
+            for _, label in enumerate(element):
+                if label.tag.split('}')[1] in NAME_TAGS:
+                    name_tag = label.text
+                    break
+            create_sub_element_xml_file(element, perm_directory, parent_perm_name, element.tag.split('}')[1], name_tag)
 
 
 def separate_perms(perm_directory):
@@ -112,9 +101,7 @@ def separate_perms(perm_directory):
 
 
 def main(output_directory):
-    """
-    Main function
-    """
+    """Main function."""
     separate_perms(output_directory)
 
 
