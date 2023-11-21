@@ -7,14 +7,6 @@ from xml.dom import minidom
 import parse_package
 
 logging.basicConfig(format='%(message)s', level=logging.DEBUG)
-# tags which have children objects
-XML_TAGS = ['applicationVisibilities', 'classAccesses', 'customMetadataTypeAccesses',
-            'customSettingAccesses', 'externalDataSourceAccesses', 'fieldPermissions',
-            'objectPermissions', 'pageAccesses', 'recordTypeVisibilities',
-            'tabSettings', 'userPermissions', 'customPermissions',
-            'flowAccesses']
-# tags which do not have children - text or boolean
-SINGLE_TAGS = ['description', 'has_activation_required', 'label', 'license', 'userLicense']
 
 
 def parse_args():
@@ -51,6 +43,13 @@ def read_individual_xmls(perm_directory, manifest, package_path):
     return individual_xmls
 
 
+def has_subelements(element):
+    """
+        Check if an XML element has sub-elements.
+    """
+    return any(element.iter())
+
+
 def merge_xml_content(individual_xmls):
     """
         Merge XMLs for each object
@@ -59,22 +58,21 @@ def merge_xml_content(individual_xmls):
     for parent_perm_name, individual_roots in individual_xmls.items():
         parent_perm_root = ET.Element('PermissionSet', xmlns="http://soap.sforce.com/2006/04/metadata")
 
-        for tag in SINGLE_TAGS:
-            matching_roots = [root for root in individual_roots if root.tag == tag]
-            for matching_root in matching_roots:
+        for matching_root in individual_roots:
+            tag = matching_root.tag
+            # Check if the root has sub-elements
+            if has_subelements(matching_root):
+                # Create a new XML element for each sub-element
+                child_element = ET.Element(tag)
+                parent_perm_root.append(child_element)
+                child_element.extend(matching_root)
+            else:
                 # Extract text content from single-element XML and append to the parent
                 text_content = matching_root.text
                 if text_content:
                     child_element = ET.Element(tag)
                     child_element.text = text_content
                     parent_perm_root.append(child_element)
-
-        for tag in XML_TAGS:
-            matching_roots = [root for root in individual_roots if root.tag == tag]
-            for matching_root in matching_roots:
-                child_element = ET.Element(tag)
-                parent_perm_root.append(child_element)
-                child_element.extend(matching_root)
 
         merged_xmls[parent_perm_name] = parent_perm_root
 
