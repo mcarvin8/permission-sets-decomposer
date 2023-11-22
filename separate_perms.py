@@ -21,6 +21,14 @@ def parse_args():
     return args
 
 
+def write_xml(contents, file_name):
+    """Write ElementTree to a file"""
+    with open(file_name, "wb") as file:
+        # Add the XML header to the file
+        file.write(b'<?xml version="1.0" encoding="UTF-8"?>\n    ')
+        contents.write(file)
+
+
 def create_single_element_xml_file(tag_name, value, perm_directory, parent_perm_name):
     """Create a new XML file for a single element."""
     output_filename = f'{perm_directory}/{parent_perm_name}.{tag_name}.xml'
@@ -33,9 +41,8 @@ def create_single_element_xml_file(tag_name, value, perm_directory, parent_perm_
     # Create an ElementTree object
     tree = ET.ElementTree(root)
 
-    # Write the ElementTree to a file
-    with open(output_filename, "wb") as file:
-        tree.write(file)
+    write_xml(tree, output_filename)
+    logging.info('Saved %s element content to %s', tag_name, output_filename)
 
 
 def create_sub_element_xml_file(label, perm_directory, parent_perm_name, tag, full_name):
@@ -48,14 +55,9 @@ def create_sub_element_xml_file(label, perm_directory, parent_perm_name, tag, fu
             element.tag = element.tag.split('}')[1]
 
     # Create a new XML ElementTree with the label as the root
-    element_tree = ET.ElementTree(label)
+    tree = ET.ElementTree(label)
 
-    # Create a new XML file for each element
-    with open(output_filename, 'wb') as file:
-        # Add the XML header to the file
-        file.write(b'<?xml version="1.0" encoding="UTF-8"?>\n    ')
-        element_tree.write(file, encoding='utf-8')
-
+    write_xml(tree, output_filename)
     logging.info('Saved %s element content to %s', tag, output_filename)
 
 
