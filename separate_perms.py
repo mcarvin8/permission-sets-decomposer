@@ -1,7 +1,9 @@
 import argparse
 import logging
-import xml.etree.ElementTree as ET
 import os
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
+
 
 ns = {'sforce': 'http://soap.sforce.com/2006/04/metadata'}
 logging.basicConfig(format='%(message)s', level=logging.DEBUG)
@@ -23,10 +25,18 @@ def parse_args():
 
 def write_xml(contents, file_name):
     """Write ElementTree to a file"""
-    with open(file_name, "wb") as file:
-        # Add the XML header to the file
-        file.write(b'<?xml version="1.0" encoding="UTF-8"?>\n    ')
-        contents.write(file)
+    xml_header = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    formatted_xml = minidom.parseString(ET.tostring(contents.getroot())).toprettyxml(indent="    ")
+
+    # Remove extra new lines
+    formatted_xml = '\n'.join(line for line in formatted_xml.split('\n') if line.strip())
+
+    # Remove existing XML declaration
+    formatted_xml = '\n'.join(line for line in formatted_xml.split('\n') if not line.strip().startswith('<?xml'))
+
+    with open(file_name, 'wb') as file:
+        file.write(xml_header.encode('utf-8'))
+        file.write(formatted_xml.encode('utf-8'))
 
 
 def create_single_element_xml_file(tag_name, value, perm_directory, parent_perm_name):
