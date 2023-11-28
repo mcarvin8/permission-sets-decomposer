@@ -10,9 +10,7 @@ logging.basicConfig(format='%(message)s', level=logging.DEBUG)
 
 
 def parse_args():
-    """
-        Function to parse command line arguments.
-    """
+    """Function to parse command line arguments."""
     parser = argparse.ArgumentParser(description='A script to create permission sets.')
     parser.add_argument('-o', '--output', default='force-app/main/default/permissionsets')
     parser.add_argument('-m', '--manifest', default=False, action='store_true')
@@ -22,9 +20,7 @@ def parse_args():
 
 
 def read_individual_xmls(perm_directory, manifest, package_path):
-    """
-        Read each XML file
-    """
+    """Read each XML file."""
     individual_xmls = {}
     if manifest:
         package_sets = parse_package.read_package_xml(package_path)
@@ -44,16 +40,12 @@ def read_individual_xmls(perm_directory, manifest, package_path):
 
 
 def has_subelements(element):
-    """
-        Check if an XML element has sub-elements.
-    """
+    """Check if an XML element has sub-elements."""
     return any(element.iter())
 
 
 def merge_xml_content(individual_xmls):
-    """
-        Merge XMLs for each object
-    """
+    """Merge XMLs for each object."""
     merged_xmls = {}
     for parent_perm_name, individual_roots in individual_xmls.items():
         parent_perm_root = ET.Element('PermissionSet', xmlns="http://soap.sforce.com/2006/04/metadata")
@@ -80,9 +72,7 @@ def merge_xml_content(individual_xmls):
 
 
 def format_and_write_xmls(merged_xmls, perm_directory):
-    """
-        Create the final XMLs
-    """
+    """Create the final XMLs."""
     for parent_perm_name, parent_perm_root in merged_xmls.items():
         parent_xml_str = ET.tostring(parent_perm_root, encoding='utf-8').decode('utf-8')
         formatted_xml = minidom.parseString(parent_xml_str).toprettyxml(indent="    ")
@@ -100,9 +90,7 @@ def format_and_write_xmls(merged_xmls, perm_directory):
 
 
 def combine_perms(perm_directory, manifest, package_path):
-    """
-        Combine the perm sets for deployments
-    """
+    """Combine the perm sets for deployments."""
     individual_xmls = read_individual_xmls(perm_directory, manifest, package_path)
     merged_xmls = merge_xml_content(individual_xmls)
     format_and_write_xmls(merged_xmls, perm_directory)
@@ -111,9 +99,7 @@ def combine_perms(perm_directory, manifest, package_path):
 
 
 def main(output_directory, manifest, package_path):
-    """
-        Main function
-    """
+    """Main function."""
     combine_perms(output_directory, manifest, package_path)
 
 

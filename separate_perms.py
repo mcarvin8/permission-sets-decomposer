@@ -14,9 +14,7 @@ NAME_TAGS = ['application', 'apexClass', 'name', 'externalDataSource', 'flow',
 
 
 def parse_args():
-    """
-        Function to parse command line arguments.
-    """
+    """Function to parse command line arguments."""
     parser = argparse.ArgumentParser(description='A script to create permissionsets.')
     parser.add_argument('-o', '--output', default='force-app/main/default/permissionsets')
     args = parser.parse_args()

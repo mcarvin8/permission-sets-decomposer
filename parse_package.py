@@ -7,9 +7,7 @@ PERM_TYPE = ['PermissionSet']
 ns = {'sforce': 'http://soap.sforce.com/2006/04/metadata'}
 
 def read_package_xml(package_path):
-    """
-        Read the package.xml file to get a list of PermissionSet names.
-    """
+    """Read the package.xml file to get a list of PermissionSet names."""
     permission_sets = []
     tree = ET.parse(package_path)
     root = tree.getroot()
