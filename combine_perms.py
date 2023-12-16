@@ -13,17 +13,16 @@ def parse_args():
     """Function to parse command line arguments."""
     parser = argparse.ArgumentParser(description='A script to create permission sets.')
     parser.add_argument('-o', '--output', default='force-app/main/default/permissionsets')
-    parser.add_argument('-m', '--manifest', default=False, action='store_true')
-    parser.add_argument('-p', '--package', default='manifest/package.xml')
+    parser.add_argument('-m', '--manifest', default=None)
     args = parser.parse_args()
     return args
 
 
-def read_individual_xmls(perm_directory, manifest, package_path):
+def read_individual_xmls(perm_directory, manifest):
     """Read each XML file."""
     individual_xmls = {}
     if manifest:
-        package_sets = parse_package.read_package_xml(package_path)
+        package_sets = parse_package.read_package_xml(manifest)
     else:
         package_sets = None
 
@@ -36,7 +35,7 @@ def read_individual_xmls(perm_directory, manifest, package_path):
                 root = tree.getroot()
                 individual_xmls[parent_perm_name].append(root)
 
-    return individual_xmls
+    return individual_xmls, package_sets
 
 
 def has_subelements(element):
@@ -89,20 +88,24 @@ def format_and_write_xmls(merged_xmls, perm_directory):
             file.write(f'<?xml version="1.0" encoding="UTF-8"?>\n{formatted_xml}'.encode('utf-8'))
 
 
-def combine_perms(perm_directory, manifest, package_path):
+def combine_perms(perm_directory, manifest):
     """Combine the perm sets for deployments."""
-    individual_xmls = read_individual_xmls(perm_directory, manifest, package_path)
+    individual_xmls, package_perms = read_individual_xmls(perm_directory, manifest)
     merged_xmls = merge_xml_content(individual_xmls)
     format_and_write_xmls(merged_xmls, perm_directory)
 
-    logging.info('The permission sets have been compiled for deployments.')
+    if manifest:
+        logging.info("The permission sets for %s have been compiled for deployments.",
+                    ', '.join(map(str, package_perms)))
+    else:
+        logging.info('The permission sets have been compiled for deployments.')
 
 
-def main(output_directory, manifest, package_path):
+def main(output_directory, manifest):
     """Main function."""
-    combine_perms(output_directory, manifest, package_path)
+    combine_perms(output_directory, manifest)
 
 
 if __name__ == '__main__':
     inputs = parse_args()
-    main(inputs.output, inputs.manifest, inputs.package)
+    main(inputs.output, inputs.manifest)
