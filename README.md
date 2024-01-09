@@ -7,6 +7,9 @@ If you wish to separate permission sets into individual files for each permissio
 - python3 ./separate_perms.py
 ```
 
+The script will fail to parse permission sets if the file-path exceeds the operating system limit. Ensure you use shorter permission set names when possible.
+The error message `ERROR writing file: %s` will be printed in the terminal, but the script will continue parsing other permission sets.
+
 Use the provided `.gitignore` and `.forceignore` to have Git ignore the original meta files and have the Salesforce CLI ignore the separated XML files.
 
 For deployments, run the combine script to compile the permission sets.
