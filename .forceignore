@@ -4,8 +4,8 @@
 
 package.xml
 
-# Ignore all XML files in the perm set directory
-**/permissionsets/*.xml
+# Ignore all XML files in subdirectories of the perm set directory
+**/permissionsets/**/*.xml
 
-# Allow all perm set meta files
+# Allow all perm set meta files directly in the perm set directory
 !**/permissionsets/*.permissionset-meta.xml

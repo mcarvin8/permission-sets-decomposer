@@ -50,5 +50,5 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Ignore permission sets created by retrievals
-*.permissionset-meta.xml
+# Ignore permission sets directly in folder (created by CLI), not in any sub-folders
+force-app/main/default/permissionsets/*.permissionset-meta.xml
