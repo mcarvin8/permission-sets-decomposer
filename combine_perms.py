@@ -26,10 +26,9 @@ def read_individual_xmls(perm_directory, manifest):
     else:
         package_sets = None
 
-    def process_perm_file(filepath):
+    def process_perm_file(filepath, parent_perm_name):
         tree = ET.parse(filepath)
         root = tree.getroot()
-        parent_perm_name = filepath.split(os.path.sep)[-3]  # Get parent folder name
         individual_xmls.setdefault(parent_perm_name, []).append(root)
 
     for root, _, files in os.walk(perm_directory):
@@ -39,7 +38,7 @@ def read_individual_xmls(perm_directory, manifest):
                 relative_path = os.path.relpath(file_path, perm_directory)
                 parent_perm_name = relative_path.split(os.path.sep)[0]
                 if not manifest or (manifest and parent_perm_name in package_sets):
-                    process_perm_file(file_path)
+                    process_perm_file(file_path, parent_perm_name)
 
     return individual_xmls, package_sets
 
