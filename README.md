@@ -1,4 +1,7 @@
 # Salesforce - Combine & Separate Permission Sets
+
+**NOTICE**: This repository has been replaced by https://github.com/mcarvin8/sfdx-decomposer. Any updates required will be pushed to the sfdx-decomposer repository instead of this one.
+
 Large permission sets can be a source of merge conflicts and specific permissions can be lost if multiple developers are working on the same permission set and they do not have certain objects in their sandboxes.
 
 If you wish to separate permission sets into individual files for each permission for version control, run the separate script after retrieving all permission sets from the production org.
